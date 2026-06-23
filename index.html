@@ -3,322 +3,607 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>心動沖繩！夏日自駕慢活之旅</title>
+    <title>普吉島四日遊行程助手 - 智慧分帳版</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icon CDN -->
+    <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Google Sans & Noto Sans TC -->
+    <!-- Google Fonts 韓系字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        fujiBlue: '#3B7AAE',
-                        warmGray: '#F5F5F7',
-                        koreanWhite: '#FAFAFA'
-                    },
-                    fontFamily: {
-                        sans: ['Noto Sans TC', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        /* 韓式可愛點點背景 */
-        .dot-bg {
-            background-color: #F5F5F7;
-            background-image: radial-gradient(#3B7AAE 1px, transparent 1px);
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #F8F9FA;
+            background-image: radial-gradient(#3B7AAE 1.2px, transparent 1.2px);
             background-size: 24px 24px;
+            background-opacity: 0.1;
         }
-        /* 隱藏滾動條 */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .bg-fuji-blue { background-color: #3B7AAE; }
+        .text-fuji-blue { color: #3B7AAE; }
+        .border-fuji-blue { border-color: #3B7AAE; }
+        .soft-shadow { box-shadow: 0 10px 30px rgba(59, 122, 174, 0.06); }
+        .modal-shadow { box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15); }
+        .active-tab { color: #3B7AAE; font-weight: 700; transform: translateY(-4px); transition: all 0.2s; }
+        html { scroll-behavior: smooth; }
     </style>
 </head>
-<body class="dot-bg font-sans text-gray-800 antialiased pb-32">
+<body class="pb-32 text-gray-700">
 
-    <!-- Top Header -->
-    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-gray-100 px-6 py-4 flex justify-between items-center rounded-b-3xl shadow-sm">
-        <div>
-            <span class="text-xs font-bold text-fujiBlue bg-blue-50 px-2.5 py-1 rounded-full">Okinawa 2026</span>
-            <h1 class="text-xl font-bold text-gray-900 mt-1">沖繩自駕慢活之旅 🌺</h1>
-        </div>
-        <div class="w-10 h-10 bg-fujiBlue/10 rounded-full flex items-center justify-center text-fujiBlue">
-            <i class="fa-solid fa-map-location-dot text-lg"></i>
+    <!-- 頂部 Header -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-gray-100 px-4 py-4 soft-shadow">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div class="text-left">
+                <div class="inline-block bg-blue-50 text-fuji-blue text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-0.5">
+                    <i class="fa-solid fa-plane-departure mr-1"></i> 2026 SUMMER TRIP
+                </div>
+                <h1 class="text-lg font-bold tracking-wide text-gray-800">普吉島自主行程表</h1>
+            </div>
+            <button onclick="resetItinerary()" class="text-xs text-gray-400 hover:text-red-500 border border-gray-200 hover:border-red-200 px-3 py-1.5 rounded-full transition flex items-center gap-1 bg-white">
+                <i class="fa-solid fa-rotate-left"></i> 重設行程
+            </button>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="max-w-md mx-auto px-4 mt-6 space-y-10" id="itinerary-container">
-        <!-- 行程將由 JavaScript 動態渲染，以支援即時編輯儲存 -->
+    <!-- 主要行程容器 -->
+    <main id="itinerary-container" class="max-w-md mx-auto px-4 mt-6 space-y-10">
+        <!-- 行程卡片將由 JavaScript 動態生成 -->
     </main>
 
-    <!-- 底部浮動導覽條 -->
-    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white/95 backdrop-blur-lg shadow-xl rounded-full py-3 px-6 flex justify-around items-center z-40 border border-gray-100">
-        <a href="#day1" data-day="day1" class="nav-item flex flex-col items-center space-y-1 text-fujiBlue active:scale-95 transition-transform">
-            <i class="fa-solid fa-calendar-day text-lg"></i>
-            <span class="text-[10px] font-bold">D1 市區</span>
-        </a>
-        <a href="#day2" data-day="day2" class="nav-item flex flex-col items-center space-y-1 text-gray-400 active:scale-95 transition-transform">
-            <i class="fa-solid fa-compass text-lg"></i>
-            <span class="text-[10px] font-bold">D2 北部</span>
-        </a>
-        <a href="#day3" data-day="day3" class="nav-item flex flex-col items-center space-y-1 text-gray-400 active:scale-95 transition-transform">
-            <i class="fa-solid fa-fish text-lg"></i>
-            <span class="text-[10px] font-bold">D3 水族館</span>
-        </a>
-        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center space-y-1 text-gray-400">
-            <i class="fa-solid fa-arrow-up-to-line text-lg"></i>
-            <span class="text-[10px] font-bold">頂部</span>
-        </button>
+    <!-- 右下角專屬精緻記帳按鈕 -->
+    <button onclick="openLedgerModal()" class="fixed bottom-24 right-6 bg-fuji-blue text-white w-14 h-14 rounded-full flex flex-col items-center justify-center shadow-xl hover:bg-sky-700 transition-all z-40 border-2 border-white">
+        <i class="fa-solid fa-calculator text-lg"></i>
+        <span class="text-[9px] font-bold">記帳</span>
+    </button>
+
+    <!-- 底部韓式浮動導覽條 -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-6 py-3 rounded-full soft-shadow border border-gray-100 flex items-center space-x-8 z-40">
+        <a href="#day-1" class="flex flex-col items-center text-gray-400 hover:text-fuji-blue transition" onclick="setActive(this)"><i class="fa-solid fa-1 text-base"></i><span class="text-[9px] mt-0.5 font-bold">D1</span></a>
+        <a href="#day-2" class="flex flex-col items-center text-gray-400 hover:text-fuji-blue transition" onclick="setActive(this)"><i class="fa-solid fa-2 text-base"></i><span class="text-[9px] mt-0.5 font-bold">D2</span></a>
+        <a href="#day-3" class="flex flex-col items-center text-gray-400 hover:text-fuji-blue transition" onclick="setActive(this)"><i class="fa-solid fa-3 text-base"></i><span class="text-[9px] mt-0.5 font-bold">D3</span></a>
+        <a href="#day-4" class="flex flex-col items-center text-gray-400 hover:text-fuji-blue transition" onclick="setActive(this)"><i class="fa-solid fa-4 text-base"></i><span class="text-[9px] mt-0.5 font-bold">D4</span></a>
     </nav>
 
-    <!-- 韓式風格編輯彈窗 (Modal) -->
-    <div id="edit-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl transition-all scale-95 opacity-0 animate-[pop_0.2s_ease-out_to_all_forward]">
-            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
-                <h3 class="text-lg font-bold text-gray-900">✏️ 修改行程景點</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
+    <!-- ================= 記帳本與分帳 Modal ================= -->
+    <div id="ledger-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+        <div id="ledger-content" class="bg-white w-full max-w-md rounded-t-[2.5rem] p-6 space-y-5 max-h-[90vh] overflow-y-auto modal-shadow transform translate-y-full transition-transform duration-300">
             
-            <input type="hidden" id="edit-day-idx">
-            <input type="hidden" id="edit-card-idx">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                <h2 class="text-base font-bold text-gray-800 flex items-center gap-1.5">
+                    <i class="fa-solid fa-wallet text-fuji-blue"></i> 普吉島隨身帳本 (4人分帳)
+                </h2>
+                <button onclick="closeLedgerModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
 
-            <div class="space-y-3 text-sm">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">時間</label>
-                    <input type="text" id="edit-time" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">景點/店名</label>
-                    <input type="text" id="edit-title" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
+            <!-- 新增消費表單 -->
+            <form id="ledger-form" class="space-y-3.5 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-100" onsubmit="addExpense(event)">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">分類</label>
-                        <select id="edit-type" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none">
-                            <option value="交通">🚗 交通</option>
-                            <option value="食物">🍜 食物</option>
-                            <option value="購物">🛍️ 購物</option>
-                            <option value="景點">🗿 景點</option>
-                            <option value="酒店">🏨 酒店</option>
+                        <label class="block font-bold text-gray-500 mb-1">🛍️ 消費項目</label>
+                        <input type="text" id="expense-item" placeholder="如：第一天晚餐" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-500 mb-1">💰 金額 (THB/TWD)</label>
+                        <input type="number" id="expense-amount" placeholder="金額" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-gray-500 mb-1">👤 誰負責墊錢？</label>
+                        <select id="expense-payer" class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none">
+                            <option value="成員A">成員A</option>
+                            <option value="成員B">成員B</option>
+                            <option value="成員C">成員C</option>
+                            <option value="成員D">成員D</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">精華標籤</label>
-                        <input type="text" id="edit-tags" placeholder="#必吃 #必拍" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none">
+                        <label class="block font-bold text-gray-500 mb-1">👥 參與平分的人</label>
+                        <div class="flex gap-2 mt-1.5">
+                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="成員A" checked>A</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="成員B" checked>B</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="成員C" checked>C</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="成員D" checked>D</label>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">💡 拍照小技巧</label>
-                    <textarea id="edit-photo" rows="2" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none resize-none"></textarea>
+
+                <button type="submit" class="w-full py-2.5 bg-fuji-blue text-white rounded-xl font-bold shadow-sm hover:bg-sky-700 transition">
+                    + 新增一筆消費
+                </button>
+            </form>
+
+            <!-- 結算報告區塊 -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">📊 目前分帳結算報告</h3>
+                    <button onclick="copyToLine()" class="bg-[#06C755] text-white text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1 hover:brightness-95 transition shadow-sm">
+                        <i class="fa-brands fa-line text-sm"></i> 複製到 LINE
+                    </button>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">🚗 停車＆加油資訊</label>
-                    <textarea id="edit-parking" rows="2" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none resize-none"></textarea>
+                
+                <!-- 4人消長面板 -->
+                <div id="settlement-board" class="grid grid-cols-2 gap-2 text-xs">
+                    <!-- JS 動態計算後填入 -->
                 </div>
             </div>
 
-            <div class="flex space-x-3 pt-2">
-                <button onclick="closeModal()" class="w-1/3 bg-warmGray text-gray-500 font-bold py-2.5 rounded-xl text-sm">取消</button>
-                <button onclick="saveChanges()" class="w-2/3 bg-fujiBlue text-white font-bold py-2.5 rounded-xl text-sm shadow-md shadow-fujiBlue/20">儲存更新</button>
+            <!-- 明細列表 -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">🧾 消費歷史明細</h3>
+                    <button onclick="clearExpenses()" class="text-[10px] text-gray-400 hover:text-red-500">清空帳本</button>
+                </div>
+                <div id="expense-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                    <!-- 明細由 JS 填入 -->
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Core Logic & Data Storage -->
+    <!-- ================= 編輯卡片 Modal (原本行程用) ================= -->
+    <div id="edit-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+        <div id="modal-content" class="bg-white w-full max-w-md rounded-t-[2.5rem] p-6 space-y-4 max-h-[90vh] overflow-y-auto modal-shadow transform translate-y-full transition-transform duration-300">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                <h2 class="text-base font-bold text-gray-800 flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square text-fuji-blue"></i> 編輯行程細節</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="edit-form" class="space-y-4 text-sm" onsubmit="saveChanges(event)">
+                <input type="hidden" id="edit-day-idx"><input type="hidden" id="edit-event-idx">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">⏰ 時間 / 區間</label>
+                    <input type="text" id="form-time" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none" required>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 地點名稱</label>
+                        <input type="text" id="form-title" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">🗂️ 景點分類</label>
+                        <select id="form-category" class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none">
+                            <option value="交通">交通</option><option value="食物">食物</option><option value="購物">購物</option><option value="景點">景點</option><option value="酒店">酒店</option><option value="活動">活動</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">✨ 彩色精華標籤 (以逗號隔開)</label>
+                    <input type="text" id="form-tags" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">💡 拍照小技巧</label>
+                    <textarea id="form-tips" rows="2" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">🚗 停車＆交通資訊</label>
+                    <textarea id="form-transport" rows="2" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none resize-none"></textarea>
+                </div>
+                <div class="pt-2"><button type="submit" class="w-full py-3 bg-fuji-blue text-white rounded-full font-bold shadow-md flex items-center justify-center gap-1.5"><i class="fa-solid fa-check"></i> 儲存更新</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= 編輯每日提醒 Modal ================= -->
+    <div id="reminder-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+        <div id="reminder-modal-content" class="bg-white w-full max-w-md rounded-t-[2.5rem] p-6 space-y-4 max-h-[85vh] overflow-y-auto modal-shadow transform translate-y-full transition-transform duration-300">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                <h2 class="text-base font-bold text-gray-800 flex items-center gap-1.5"><i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> 編輯穿著與天氣提示</h2>
+                <button onclick="closeReminderModal()" class="text-gray-400 hover:text-gray-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="reminder-form" class="space-y-4 text-sm" onsubmit="saveReminderChanges(event)">
+                <input type="hidden" id="reminder-day-idx">
+                <div><label class="block text-xs font-bold text-gray-500 mb-1">👗 建議穿著</label><textarea id="form-outfit" rows="3" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none resize-none" required></textarea></div>
+                <div><label class="block text-xs font-bold text-gray-500 mb-1">☀️ 天氣提示</label><textarea id="form-weather" rows="3" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none resize-none" required></textarea></div>
+                <div class="pt-2"><button type="submit" class="w-full py-3 bg-amber-500 text-white rounded-full font-bold shadow-md flex items-center justify-center gap-1.5"><i class="fa-solid fa-check"></i> 儲存建議</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript 核心邏輯 ==================== -->
     <script>
-        // 初始經典沖繩自駕數據
-        const defaultData = [
+        // 初始預設行程資料
+        const defaultItinerary = [
             {
-                day: "DAY 1",
-                id: "day1",
-                title: "那霸市區與國際通探索",
-                clothing: "市區步行時間較長，建議穿著舒適透氣的棉麻上衣、寬褲或短褲，並搭配一雙好走的球鞋。",
-                weather: "市區體感溫度偏高（約 31°C），紫外線強烈。請隨身攜帶陽傘並定時補充水分，嚴防中暑。",
-                cards: [
-                    { time: "10:30", type: "交通", title: "那霸機場 OTS 租車公司", tags: ["#必拍"], photo: "拿到車後，記得與亮藍色的 OTS 招牌和沖繩限定風獅爺合照一張，宣告自駕之旅正式開始！", parking: "臨空豐崎營業所有超大免費停車場。取車時油箱為全滿狀態，還車時需至指定油站加滿並出示收據。" },
-                    { time: "12:35", type: "食物", title: "暖暮拉麵 那霸牧志店", tags: ["#必吃"], photo: "拉麵上桌時，用手機人像模式對焦在濃郁的高湯與叉燒上，特寫半熟蛋的流汁感最誘人。", parking: "店家無特約停車場，建議停在附近的「NPC24H 那霸牧志」或國際通周邊的收費停車場（約每小時 300-400 日圓）。" },
-                    { time: "14:30", type: "購物", title: "國際通大道散策", tags: ["#必買", "#必拍"], photo: "尋找路邊巨大的御菓子御殿紅芋塔模型，人站在旁邊合照非常具備沖繩地標感！", parking: "國際通為單行道且容易塞車，推薦停在美榮橋站附近的停車場再步行前往，比較省時。週日有步行者天國禁止車輛進入。" }
+                day: "DAY 1", date: "7/18 (六)", theme: "啟程與普吉探索之旅",
+                outfit: "考慮到長途飛行與下午的老街外拍，建議穿著舒適且拍照上鏡的輕便亮色系便服（如白色洋裝或棉麻襯衫），並隨身攜帶一件薄外套防室內冷氣。",
+                weather: "普吉島 7 月為雨季，多為午後局部陣雨。雖然主要為室內與包車行程，但在普吉老街散步時仍建議隨身攜帶折疊傘防雨與防曬！",
+                events: [
+                    { time: "08:20 抵達", title: "台北 / 新加坡 / 普吉島機場", category: "交通", tags: ["#搭機", "#必拍 窗外安達曼群島"], tips: "抵達普吉島降落前，記得打開窗戶，可以俯瞰美麗的安達曼海小島群，超適合拍出發限動！", transport: "抵達後跟著 Arrival 指標過海關。09:00 左右包車司機會在航廈指定出口舉牌接機。" },
+                    { time: "10:00 - 11:40", title: "Central Phuket 覓食與逛街", category: "購物", tags: ["#必吃 地下美食街", "#必買 泰國高質感香氛"], tips: "百貨中庭的巨型室內熱帶植物牆是經典打卡位，由下往上拍能顯現出驚人的空間綠意質感。", transport: "若百貨尚未開門（10點開門），可請司機先繞到旁邊步行僅3分鐘的 Big C 特易購進行小採買。" },
+                    { time: "12:00 - 13:30", title: "Padma Wellness Spa 精蹟水療", category: "活動", tags: ["#必放鬆 泰式精油", "#必拍 極簡禪意庭園"], tips: "大廳奉上的特色迎賓蝶豆花茶與香草冰毛巾，搭配店內木質高雅香氛，是極具儀式感的開場畫面。", transport: "從 Central Phuket 出發車程僅需 6 分鐘，店家門口備有 4 格專屬貴賓停車位。" },
+                    { time: "13:45 - 15:45", title: "普吉老鎮 (文青咖啡街)", category: "景點", tags: ["#必拍 彩色百年中葡老建築", "#必吃 手工斑蘭葉甜點"], tips: "羅曼尼街 (Soi Rommanee) 的粉紅牆面與街頭壁畫是經典打卡點。建議使用人像模式，抓拍漫步老街的延伸感。", transport: "老街巷道窄，車輛不便久停，包車司機通常會放您在入口下車。若自駕需開往週邊收費停車場。" },
+                    { time: "16:45 抵達", title: "普吉萬豪渡假酒店 (Marriott)", category: "酒店", tags: ["#必住 豪華五星渡假村", "#必拍 海天一線絕美夕陽"], tips: "辦理完入住後建議立刻直奔海灘！傍晚 18:00 - 18:30 是普吉島絕美的魔幻紫粉色夕陽黃金拍照時間。", transport: "包車行程於抵達飯店後結束。萬豪提供房客專屬免費地下與平面停車場，保全措施非常完善。" }
                 ]
             },
             {
-                day: "DAY 2",
-                id: "day2",
-                title: "中北部絕美海景與古宇利島",
-                clothing: "今天充滿海風與沙灘！建議穿著亮色系渡假風長裙或海灘褲，拍照極度出片。記得穿方便脫的涼鞋或拖鞋。",
-                weather: "海邊風大且完全無遮蔽物，體感紫外線爆表。請準備好太陽眼鏡、草帽，防曬乳一定要每 2 小時補擦一次喔！",
-                cards: [
-                    { time: "09:30", type: "景點", title: "萬座毛 (Manzamo)", tags: ["#必拍"], photo: "上午是順光，能拍出最透亮的「沖繩藍」海面！記得將經典的象鼻岩放在畫面左側三分之一處。", parking: "設有全新的複合式觀光建築，前方有免費的大型戶外停車場，車位非常多且附有電動車充電樁。" },
-                    { time: "13:30", type: "景點", title: "古宇利大橋 & 心形岩", tags: ["#必拍", "#必吃"], photo: "在準備上橋前的展望台靠邊停，可以拍到筆直大橋直通藍海的延伸感。心形岩則適合退潮時走下沙灘仰拍。", parking: "古宇利島橋頭兩側有免費草地停車場。心形岩周邊多為村民私有地，停車費約 100-300 日圓，採良心投幣箱式。" }
+                day: "DAY 2", date: "7/19 (日)", theme: "夢幻安達曼海出海一日遊",
+                outfit: "出發前請直接將泳衣/比基尼穿在身上，外面套上一件防曬防水的亮色沙灘罩衫或海灘褲。務必穿戴防滑涉水鞋、遮陽帽與太陽眼鏡。",
+                weather: "海上無遮蔽物、紫外線極強，請準備高規格「海洋友善防曬乳」並每兩小時補擦。建議自備防水袋，保護好您的手機。",
+                events: [
+                    { time: "全日出海行程", title: "安達曼奢華雙體船一日遊", category: "活動", tags: ["#全島免費接駁", "#中文導遊隨行", "#雞蛋島浮潛看魚"], tips: "在透明獨木舟上時，請旅伴由上往下拍攝，可以完美拍出船隻漂浮在玻璃水面上的超唯美大片！", transport: "此出海行程含全島免費接駁。請依確認信上的時間，提前 10 分鐘至萬豪酒店大廳等候接駁司機。" }
                 ]
             },
             {
-                day: "DAY 3",
-                id: "day3",
-                title: "經典水族館與美國村夜景",
-                clothing: "水族館內冷氣較強，美國村夜間海風微涼。建議帶件輕薄的防曬微薄外套，內搭美式休閒 T-shirt 與丹寧風服飾。",
-                weather: "白天室內行程舒適，傍晚海邊風速較大。注意查看日落時間（夏季約 19:15），提早卡位黃金夕陽時間。",
-                cards: [
-                    { time: "09:30", type: "景點", title: "美麗海水族館", tags: ["#必拍"], photo: "在「黑潮之海」大水槽前，人站在水槽前剪影留念，等鯨鯊游過去那一瞬間按下快門，科幻感十足！", parking: "請導航定位在「海洋博公園 P7 北口立體停車場」，這是離水族館正門最近的停車場，且完全免費。" },
-                    { time: "16:30", type: "購物", title: "北谷町美國村", tags: ["#必吃", "#必買", "#必拍"], photo: "傍晚時分先到日落步道（Sunset Walk）拍絕美夕陽，入夜後換拍色彩斑斕、宛如置身歐美的霓虹燈街景。", parking: "美國村擁有超級寬廣的免費公共停車場（如 Depot Island 旁）。中途若需加油，國道 58 號線上有許多 ENEOS 自助加油站。" }
+                day: "DAY 3", date: "7/20 (一)", theme: "萬豪酒店慢活耍廢一整天",
+                outfit: "極致慵懶風格！推薦穿著波希米亞風的純白印花超長洋裝，搭配一雙時尚平底拖鞋，隨時在飯店內各角落優雅擺拍。",
+                weather: "今天主要都在渡假村內，若遇到降雨也不用擔心，飯店內備有豐富的室內休閒室、多間泰/意餐廳與豪華 SPA 館可享受。",
+                events: [
+                    { time: "整日自由慢活", title: "萬豪五星渡假設施全攻略", category: "酒店", tags: ["#網美無邊際泳池", "#客房服務池畔調酒", "#極致渡假感"], tips: "萬豪特有的池畔躺椅與棕櫚樹倒影是完美背景。上午 8 點前陽光最柔和且池畔沒人，最容易拍出空靈感大片。", transport: "整天不需用車。若有租車自駕，車輛可安穩停放在飯店停車場內休養。" }
+                ]
+            },
+            {
+                day: "DAY 4", date: "7/21 (二)", theme: "滿載美好回憶歸國",
+                outfit: "考量長途飛行與機場空調冷氣，建議穿著舒適親膚的長褲、大學Tee或連帽外套，讓您在飛機上能舒適安穩地休息。",
+                weather: "回程打包行李時，記得將防曬噴霧、刀剪類以及超過100ml的泰國伴手禮香氛液體放入託運，以免海關安檢時被沒收！",
+                events: [
+                    { time: "依航班時間", title: "普吉島機場 / 桃園國際機場", category: "交通", tags: ["#平安歸國", "#免稅店最後採購"], tips: "出境大廳內有非常壯觀的泰式傳統巨神雕刻地標，別忘了在登機前與它合影，為泰國之旅畫下完美句點。", transport: "請提前至少 3 小時抵達機場還車與辦理登機。自駕還車前，請務必至機場旁的 PTT 加油站將油箱「加滿還車」。" }
                 ]
             }
         ];
 
-        // 讀取本地快取或初始化
-        let travelData = JSON.parse(localStorage.getItem('okinawa_itinerary_2026')) || defaultData;
+        let itinerary = JSON.parse(localStorage.getItem('phuket_itinerary')) || defaultItinerary;
+        // 記帳本資料庫 (從 LocalStorage 讀取)
+        let expenses = JSON.parse(localStorage.getItem('phuket_expenses')) || [];
 
-        // 分類對應的樣式與圖標
-        const typeStyles = {
-            "交通": { bg: "bg-amber-100", text: "text-amber-800", icon: "fa-car" },
-            "食物": { bg: "bg-red-100", text: "text-red-800", icon: "fa-utensils" },
-            "購物": { bg: "bg-purple-100", text: "text-purple-800", icon: "fa-bag-shopping" },
-            "景點": { bg: "bg-emerald-100", text: "text-emerald-800", icon: "fa-umbrella-beach" },
-            "酒店": { bg: "bg-blue-100", text: "text-blue-800", icon: "fa-hotel" }
+        const categoryConfig = {
+            "交通": { bg: "bg-blue-50", text: "text-blue-600", icon: "fa-car-side" },
+            "食物": { bg: "bg-red-50", text: "text-red-500", icon: "fa-utensils" },
+            "購物": { bg: "bg-orange-50", text: "text-orange-600", icon: "fa-bag-shopping" },
+            "景點": { bg: "bg-purple-50", text: "text-purple-600", icon: "fa-camera-retro" },
+            "酒店": { bg: "bg-indigo-50", text: "text-indigo-600", icon: "fa-hotel" },
+            "活動": { bg: "bg-teal-50", text: "text-teal-600", icon: "fa-person-swimming" }
         };
 
-        // 渲染主畫面
+        // 渲染行程表核心邏輯
         function renderItinerary() {
             const container = document.getElementById('itinerary-container');
             container.innerHTML = '';
-
-            travelData.forEach((dayData, dayIdx) => {
-                let sectionHtml = `
-                    <section id="${dayData.id}" class="space-y-4 scroll-mt-24">
-                        <div class="flex items-center space-x-3">
-                            <span class="bg-fujiBlue text-white text-sm font-bold px-3 py-1 rounded-full shadow-sm">${dayData.day}</span>
-                            <h2 class="text-lg font-bold text-gray-700">${dayData.title}</h2>
-                        </div>
-                `;
-
-                dayData.cards.forEach((card, cardIdx) => {
-                    const style = typeStyles[card.type] || { bg: "bg-gray-100", text: "text-gray-800", icon: "fa-location-dot" };
-                    const tagBadges = card.tags.map(t => `<span class="text-xs font-bold text-fujiBlue">${t}</span>`).join(' ');
-
-                    sectionHtml += `
-                        <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 space-y-3 relative group">
-                            <!-- 編輯按鈕 -->
-                            <button onclick="openModal(${dayIdx}, ${cardIdx})" class="absolute top-4 right-4 bg-warmGray hover:bg-fujiBlue/10 text-gray-400 hover:text-fujiBlue w-8 h-8 rounded-full flex items-center justify-center transition-colors">
-                                <i class="fa-solid fa-pen text-xs"></i>
-                            </button>
-
-                            <div class="flex justify-between items-start pr-8">
-                                <div>
-                                    <span class="text-xs font-medium ${style.bg} ${style.text} px-2 py-0.5 rounded-md">
-                                        <i class="fa-solid ${style.icon} mr-1"></i>${card.type}
-                                    </span>
-                                    <h3 class="text-md font-bold text-gray-900 mt-1.5">${card.title}</h3>
-                                </div>
-                                <span class="text-xs text-gray-400 font-medium whitespace-nowrap mt-0.5">${card.time}</span>
+            itinerary.forEach((dayData, dayIdx) => {
+                const daySection = document.createElement('section');
+                daySection.id = `day-${dayIdx + 1}`;
+                daySection.className = 'space-y-4';
+                daySection.innerHTML += `
+                    <div class="flex items-center space-x-2 pt-2">
+                        <span class="bg-fuji-blue text-white text-xs font-bold w-16 h-7 rounded-full flex items-center justify-center shadow-sm">${dayData.day}</span>
+                        <span class="text-xs text-gray-400 font-medium">${dayData.date} • ${dayData.theme}</span>
+                    </div>`;
+                
+                dayData.events.forEach((event, eventIdx) => {
+                    const config = categoryConfig[event.category] || { bg: "bg-gray-50", text: "text-gray-600", icon: "fa-location-dot" };
+                    let tagsHtml = (event.tags || []).map(t => `<span class="text-[10px] bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-bold">${t}</span>`).join('');
+                    daySection.innerHTML += `
+                        <div class="bg-white rounded-[2rem] p-5 soft-shadow border border-gray-100 space-y-3 relative">
+                            <button onclick="openEditModal(${dayIdx}, ${eventIdx})" class="absolute top-4 right-4 bg-gray-50 hover:bg-blue-50 text-gray-400 hover:text-fuji-blue w-8 h-8 rounded-full flex items-center justify-center border border-gray-100"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <div>
+                                <span class="${config.bg} ${config.text} text-[10px] px-2.5 py-0.5 rounded-md font-bold flex items-center gap-1 w-fit"><i class="fa-solid ${config.icon}"></i> ${event.category}</span>
+                                <h3 class="text-base font-bold mt-1.5 text-gray-800 tracking-wide">${event.title}</h3>
                             </div>
-
-                            <div class="flex flex-wrap gap-1.5">${tagBadges}</div>
-
-                            <div class="bg-warmGray rounded-2xl p-3.5 text-xs space-y-2 text-gray-600">
-                                <p><strong>💡 拍照小技巧：</strong> ${card.photo}</p>
-                                <p><strong>🚗 停車＆加油資訊：</strong> ${card.parking}</p>
+                            <div class="text-xs font-bold text-fuji-blue flex items-center"><i class="fa-regular fa-clock mr-1"></i> ${event.time}</div>
+                            ${tagsHtml ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHtml}</div>` : ''}
+                            <div class="bg-[#F8F9FA] rounded-2xl p-4 text-[11px] space-y-2 text-gray-600 border border-gray-100/50">
+                                <div><span class="font-bold text-gray-700 block">💡 拍照小技巧：</span><p class="text-gray-500">${event.tips}</p></div>
+                                <div class="border-t border-gray-200/50 pt-2"><span class="font-bold text-gray-700 block">🚗 交通與停車資訊：</span><p class="text-gray-500">${event.transport}</p></div>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
 
-                // 貼心提醒
-                sectionHtml += `
-                        <div class="bg-fujiBlue/10 rounded-3xl p-4 border border-fujiBlue/20 text-xs text-fujiBlue space-y-1">
-                            <p class="font-bold"><i class="fa-solid fa-shirt mr-1"></i> 👗 建議穿著：</p>
-                            <p class="text-gray-600 mb-2">${dayData.clothing}</p>
-                            <p class="font-bold"><i class="fa-solid fa-sun mr-1"></i> ☀️ 天氣提示：</p>
-                            <p class="text-gray-600">${dayData.weather}</p>
+                daySection.innerHTML += `
+                    <div class="bg-amber-50/50 rounded-[2rem] p-5 border border-amber-100/70 space-y-3 relative">
+                        <button onclick="openReminderModal(${dayIdx})" class="absolute top-4 right-4 bg-white/80 hover:bg-amber-100 text-amber-600/70 w-8 h-8 rounded-full flex items-center justify-center border border-amber-200/50"><i class="fa-solid fa-pen text-xs"></i></button>
+                        <div class="text-xs font-bold text-amber-800 flex items-center"><i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> ${dayData.day} 導遊貼心備忘</div>
+                        <div class="text-[11px] text-amber-900/80 space-y-2 leading-relaxed">
+                            <div><strong class="text-amber-950 font-bold block">👗 穿著推薦：</strong><p class="text-amber-900/70">${dayData.outfit}</p></div>
+                            <div class="border-t border-amber-200/40 pt-2"><strong class="text-amber-950 font-bold block">☀️ 天氣提示：</strong><p class="text-amber-900/70">${dayData.weather}</p></div>
                         </div>
-                    </section>
-                `;
-
-                container.innerHTML += sectionHtml;
+                    </div>`;
+                container.appendChild(daySection);
             });
         }
 
-        // 開啟編輯彈窗並帶入原資料
-        function openModal(dayIdx, cardIdx) {
-            const card = travelData[dayIdx].cards[cardIdx];
-            document.getElementById('edit-day-idx').value = dayIdx;
-            document.getElementById('edit-card-idx').value = cardIdx;
-            
-            document.getElementById('edit-time').value = card.time;
-            document.getElementById('edit-title').value = card.title;
-            document.getElementById('edit-type').value = card.type;
-            document.getElementById('edit-tags').value = card.tags.join(' ');
-            document.getElementById('edit-photo').value = card.photo;
-            document.getElementById('edit-parking').value = card.parking;
+        // ==================== 記帳本分帳運算核心 ====================
+        const members = ["成員A", "成員B", "成員C", "成員D"];
 
-            const modal = document.getElementById('edit-modal');
+        function calculateDebts() {
+            // 初始化每位成員的消長
+            let balances = { "成員A": 0, "成員B": 0, "成員C": 0, "成員D": 0 };
+            let totalPaid = { "成員A": 0, "成員B": 0, "成員C": 0, "成員D": 0 };
+            let totalOwed = { "成員A": 0, "成員B": 0, "成員C": 0, "成員D": 0 };
+
+            expenses.forEach(exp => {
+                let amt = parseFloat(exp.amount);
+                totalPaid[exp.payer] += amt;
+                
+                let shareCount = exp.shares.length;
+                if (shareCount > 0) {
+                    let perShare = amt / shareCount;
+                    exp.shares.forEach(m => {
+                        totalOwed[m] += perShare;
+                    });
+                }
+            });
+
+            members.forEach(m => {
+                balances[m] = totalPaid[m] - totalOwed[m]; // 正數代表別人該給他，負數代表他該給別人
+            });
+
+            return { balances, totalPaid, totalOwed };
+        }
+
+        function renderLedger() {
+            // 1. 渲染消費清單
+            const listContainer = document.getElementById('expense-list');
+            listContainer.innerHTML = expenses.length === 0 ? '<p class="text-gray-400 text-center py-4 text-[11px]">目前尚無任何記帳資料</p>' : '';
+            
+            expenses.forEach((exp, idx) => {
+                listContainer.innerHTML += `
+                    <div class="flex justify-between items-center bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm text-[11px]">
+                        <div>
+                            <span class="font-bold text-gray-800">${exp.item}</span>
+                            <span class="text-gray-400 block text-[10px]">${exp.payer} 墊付 • 共 ${exp.shares.length} 人分攤</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-fuji-blue">${exp.amount} 元</span>
+                            <button onclick="deleteExpense(${idx})" class="text-gray-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </div>`;
+            });
+
+            // 2. 渲染結算面板
+            const { balances } = calculateDebts();
+            const board = document.getElementById('settlement-board');
+            board.innerHTML = '';
+            
+            members.forEach(m => {
+                let bal = balances[m];
+                let cardColor = bal >= 0 ? 'bg-emerald-50/60 border-emerald-100 text-emerald-700' : 'bg-rose-50/60 border-rose-100 text-rose-700';
+                let balText = bal >= 0 ? `應拿回 +${Math.round(bal)}` : `應轉出 ${Math.round(bal)}`;
+                
+                board.innerHTML += `
+                    <div class="p-2.5 rounded-xl border ${cardColor} flex flex-col justify-between">
+                        <span class="font-bold text-gray-700">${m}</span>
+                        <span class="text-[11px] font-bold mt-1">${balText} 元</span>
+                    </div>`;
+            });
+        }
+
+        function addExpense(e) {
+            e.preventDefault();
+            const item = document.getElementById('expense-item').value;
+            const amount = parseFloat(document.getElementById('expense-amount').value);
+            const payer = document.getElementById('expense-payer').value;
+            
+            // 獲取核取方塊
+            const checkboxes = document.querySelectorAll('.share-member:checked');
+            let shares = [];
+            checkboxes.forEach(cb => shares.push(cb.value));
+
+            if(shares.length === 0) {
+                alert("請至少勾選一位參與分攤的成員！");
+                return;
+            }
+
+            expenses.push({ item, amount, payer, shares });
+            localStorage.setItem('phuket_expenses', JSON.stringify(expenses));
+            
+            // 重設欄位
+            document.getElementById('expense-item').value = '';
+            document.getElementById('expense-amount').value = '';
+            
+            renderLedger();
+        }
+
+        function deleteExpense(idx) {
+            expenses.splice(idx, 1);
+            localStorage.setItem('phuket_expenses', JSON.stringify(expenses));
+            renderLedger();
+        }
+
+        function clearExpenses() {
+            if(confirm("確定要清空所有消費明細與分帳紀錄嗎？")) {
+                expenses = [];
+                localStorage.setItem('phuket_expenses', JSON.stringify(expenses));
+                renderLedger();
+            }
+        }
+
+        // ==================== LINE 結算訊息排版與複製 ====================
+        function copyToLine() {
+            if (expenses.length === 0) {
+                alert("目前沒有任何帳目資料可以複製喔！");
+                return;
+            }
+
+            const { balances } = calculateDebts();
+            
+            let msg = `『 🌴 普吉島夏日渡假 - 4人分帳結算清單 』\n\n`;
+            msg += `📝 【消費明細摘要】\n`;
+            expenses.forEach(exp => {
+                msg += `• ${exp.item}: $${exp.amount} (由 ${exp.payer} 墊付)\n`;
+            });
+            
+            msg += `\n📊 【最終應退/應補金額】\n`;
+            
+            // 分離債權人與債務人
+            let creditors = [];
+            let debtors = [];
+            
+            members.forEach(m => {
+                let bal = Math.round(balances[m]);
+                if (bal > 0) {
+                    creditors.push({ name: m, amount: bal });
+                    msg += ` 🟢 ${m}：應拿回 $${bal} 元\n`;
+                } else if (bal < 0) {
+                    debtors.push({ name: m, amount: Math.abs(bal) });
+                    msg += ` 🔴 ${m}：應拿給別人 $${Math.abs(bal)} 元\n`;
+                } else {
+                    msg += ` ⚪ ${m}：已兩清 $0 元\n`;
+                }
+            });
+
+            msg += `\n💸 【最快轉帳直覺指南】\n`;
+            
+            // 簡易債務抵銷演算法
+            let c_idx = 0;
+            let d_idx = 0;
+            let actions = [];
+
+            while (c_idx < creditors.length && d_idx < debtors.length) {
+                let c = creditors[c_idx];
+                let d = debtors[d_idx];
+                
+                let transfer = Math.min(c.amount, d.amount);
+                if (transfer > 0) {
+                    actions.push(`👉 ${d.name} 轉帳 $${transfer} 元 ➡️ 給 ${c.name}`);
+                }
+                
+                c.amount -= transfer;
+                d.amount -= transfer;
+                
+                if (c.amount === 0) c_idx++;
+                if (d.amount === 0) d_idx++;
+            }
+
+            if(actions.length === 0) {
+                msg += `大家帳目剛剛好，完美兩清不需要互相轉帳！\n`;
+            } else {
+                actions.forEach(act => msg += `${act}\n`);
+            }
+            
+            msg += `\n大家辛苦了！旅程結束記得迅速交清喔 ❤️`;
+
+            // 複製到剪貼簿
+            navigator.clipboard.writeText(msg).then(() => {
+                alert("🇹🇭 結算文字已成功複製！請直接至 LINE 群組貼上通知大家。");
+            }).catch(err => {
+                alert("複製失敗，請手動選取文字複製。");
+            });
+        }
+
+        // ==================== Modal 視窗開關動畫控制 ====================
+        function openLedgerModal() {
+            renderLedger();
+            const modal = document.getElementById('ledger-modal');
+            const content = document.getElementById('ledger-content');
             modal.classList.remove('hidden');
             setTimeout(() => {
-                modal.firstElementChild.classList.remove('scale-95', 'opacity-0');
+                modal.classList.add('opacity-100');
+                content.classList.remove('translate-y-full');
             }, 10);
         }
 
-        // 關閉彈窗
-        function closeModal() {
-            const modal = document.getElementById('edit-modal');
-            modal.firstElementChild.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                modal.add('hidden');
-                modal.classList.add('hidden');
-            }, 200);
+        function closeLedgerModal() {
+            const modal = document.getElementById('ledger-modal');
+            const content = document.getElementById('ledger-content');
+            content.classList.add('translate-y-full');
+            modal.classList.remove('opacity-100');
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // 儲存修改內容
-        function saveChanges() {
-            const dayIdx = document.getElementById('edit-day-idx').value;
-            const cardIdx = document.getElementById('edit-card-idx').value;
+        function openEditModal(dayIdx, eventIdx) {
+            const event = itinerary[dayIdx].events[eventIdx];
+            document.getElementById('edit-day-idx').value = dayIdx;
+            document.getElementById('edit-event-idx').value = eventIdx;
+            document.getElementById('form-time').value = event.time;
+            document.getElementById('form-title').value = event.title;
+            document.getElementById('form-category').value = event.category;
+            document.getElementById('form-tags').value = event.tags ? event.tags.join(', ') : '';
+            document.getElementById('form-tips').value = event.tips;
+            document.getElementById('form-transport').value = event.transport;
 
-            const tagsInput = document.getElementById('edit-tags').value;
-            // 正規化標籤格式 (以空格或逗號分開，自動補上 #)
-            const processedTags = tagsInput.split(/[\s,]+/).filter(t => t).map(t => t.startsWith('#') ? t : '#' + t);
+            const modal = document.getElementById('edit-modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('opacity-100'); content.classList.remove('translate-y-full'); }, 10);
+        }
 
-            travelData[dayIdx].cards[cardIdx] = {
-                time: document.getElementById('edit-time').value,
-                type: document.getElementById('edit-type').value,
-                title: document.getElementById('edit-title').value,
+        function closeModal() {
+            const modal = document.getElementById('edit-modal');
+            const content = document.getElementById('modal-content');
+            content.classList.add('translate-y-full'); modal.classList.remove('opacity-100');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function saveChanges(e) {
+            e.preventDefault();
+            const dayIdx = parseInt(document.getElementById('edit-day-idx').value);
+            const eventIdx = parseInt(document.getElementById('edit-event-idx').value);
+            const tagsInput = document.getElementById('form-tags').value;
+            const processedTags = tagsInput.split(',').map(tag => {
+                let trimmed = tag.trim();
+                if (trimmed && !trimmed.startsWith('#')) return '#' + trimmed;
+                return trimmed;
+            }).filter(t => t !== '');
+
+            itinerary[dayIdx].events[eventIdx] = {
+                time: document.getElementById('form-time').value,
+                title: document.getElementById('form-title').value,
+                category: document.getElementById('form-category').value,
                 tags: processedTags,
-                photo: document.getElementById('edit-photo').value,
-                parking: document.getElementById('edit-parking').value
+                tips: document.getElementById('form-tips').value,
+                transport: document.getElementById('form-transport').value
             };
-
-            // 存入 LocalStorage 保持永久記憶
-            localStorage.setItem('okinawa_itinerary_2026', JSON.stringify(travelData));
-            
+            localStorage.setItem('phuket_itinerary', JSON.stringify(itinerary));
             renderItinerary();
             closeModal();
         }
 
-        // 底部導覽列高亮滾動偵測
-        window.addEventListener('scroll', () => {
-            let current = '';
-            const sections = document.querySelectorAll('section');
-            sections.forEach(section => {
-                if (pageYOffset >= section.offsetTop - 140) {
-                    current = section.getAttribute('id');
-                }
-            });
+        function openReminderModal(dayIdx) {
+            const dayData = itinerary[dayIdx];
+            document.getElementById('reminder-day-idx').value = dayIdx;
+            document.getElementById('form-outfit').value = dayData.outfit;
+            document.getElementById('form-weather').value = dayData.weather;
 
-            document.querySelectorAll('.nav-item').forEach(link => {
-                link.classList.remove('text-fujiBlue');
-                link.classList.add('text-gray-400');
-                if (link.getAttribute('data-day') === current) {
-                    link.classList.remove('text-gray-400');
-                    link.classList.add('text-fujiBlue');
-                }
-            });
+            const modal = document.getElementById('reminder-modal');
+            const content = document.getElementById('reminder-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('opacity-100'); content.classList.remove('translate-y-full'); }, 10);
+        }
+
+        function closeReminderModal() {
+            const modal = document.getElementById('reminder-modal');
+            const content = document.getElementById('reminder-modal-content');
+            content.classList.add('translate-y-full'); modal.classList.remove('opacity-100');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function saveReminderChanges(e) {
+            e.preventDefault();
+            const dayIdx = parseInt(document.getElementById('reminder-day-idx').value);
+            itinerary[dayIdx].outfit = document.getElementById('form-outfit').value;
+            itinerary[dayIdx].weather = document.getElementById('form-weather').value;
+            localStorage.setItem('phuket_itinerary', JSON.stringify(itinerary));
+            renderItinerary();
+            closeReminderModal();
+        }
+
+        function resetItinerary() {
+            if (confirm("確定要將所有編輯過的行程與穿著提醒回復為預設值嗎？")) {
+                itinerary = JSON.parse(JSON.stringify(defaultItinerary));
+                localStorage.setItem('phuket_itinerary', JSON.stringify(itinerary));
+                renderItinerary();
+            }
+        }
+
+        function setActive(element) {
+            const links = document.querySelectorAll('nav a');
+            links.forEach(link => link.classList.remove('active-tab'));
+            element.classList.add('active-tab');
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            renderItinerary();
+            document.querySelector('nav a').classList.add('active-tab');
+            
+            // 點擊背景遮罩關閉視窗
+            document.getElementById('edit-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+            document.getElementById('reminder-modal').addEventListener('click', function(e) { if (e.target === this) closeReminderModal(); });
+            document.getElementById('ledger-modal').addEventListener('click', function(e) { if (e.target === this) closeLedgerModal(); });
         });
-
-        // 首次初始化載入
-        window.onload = renderItinerary;
     </script>
 </body>
 </html>
