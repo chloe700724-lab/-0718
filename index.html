@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心動沖繩！夏日自駕慢活之旅</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icon CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Google Sans & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fujiBlue: '#3B7AAE',
+                        warmGray: '#F5F5F7',
+                        koreanWhite: '#FAFAFA'
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 韓式可愛點點背景 */
+        .dot-bg {
+            background-color: #F5F5F7;
+            background-image: radial-gradient(#3B7AAE 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        /* 隱藏滾動條 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="dot-bg font-sans text-gray-800 antialiased pb-32">
+
+    <!-- Top Header -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-gray-100 px-6 py-4 flex justify-between items-center rounded-b-3xl shadow-sm">
+        <div>
+            <span class="text-xs font-bold text-fujiBlue bg-blue-50 px-2.5 py-1 rounded-full">Okinawa 2026</span>
+            <h1 class="text-xl font-bold text-gray-900 mt-1">沖繩自駕慢活之旅 🌺</h1>
+        </div>
+        <div class="w-10 h-10 bg-fujiBlue/10 rounded-full flex items-center justify-center text-fujiBlue">
+            <i class="fa-solid fa-map-location-dot text-lg"></i>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-md mx-auto px-4 mt-6 space-y-10" id="itinerary-container">
+        <!-- 行程將由 JavaScript 動態渲染，以支援即時編輯儲存 -->
+    </main>
+
+    <!-- 底部浮動導覽條 -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white/95 backdrop-blur-lg shadow-xl rounded-full py-3 px-6 flex justify-around items-center z-40 border border-gray-100">
+        <a href="#day1" data-day="day1" class="nav-item flex flex-col items-center space-y-1 text-fujiBlue active:scale-95 transition-transform">
+            <i class="fa-solid fa-calendar-day text-lg"></i>
+            <span class="text-[10px] font-bold">D1 市區</span>
+        </a>
+        <a href="#day2" data-day="day2" class="nav-item flex flex-col items-center space-y-1 text-gray-400 active:scale-95 transition-transform">
+            <i class="fa-solid fa-compass text-lg"></i>
+            <span class="text-[10px] font-bold">D2 北部</span>
+        </a>
+        <a href="#day3" data-day="day3" class="nav-item flex flex-col items-center space-y-1 text-gray-400 active:scale-95 transition-transform">
+            <i class="fa-solid fa-fish text-lg"></i>
+            <span class="text-[10px] font-bold">D3 水族館</span>
+        </a>
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fa-solid fa-arrow-up-to-line text-lg"></i>
+            <span class="text-[10px] font-bold">頂部</span>
+        </button>
+    </nav>
+
+    <!-- 韓式風格編輯彈窗 (Modal) -->
+    <div id="edit-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl transition-all scale-95 opacity-0 animate-[pop_0.2s_ease-out_to_all_forward]">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <h3 class="text-lg font-bold text-gray-900">✏️ 修改行程景點</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <input type="hidden" id="edit-day-idx">
+            <input type="hidden" id="edit-card-idx">
+
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">時間</label>
+                    <input type="text" id="edit-time" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">景點/店名</label>
+                    <input type="text" id="edit-title" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">分類</label>
+                        <select id="edit-type" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none">
+                            <option value="交通">🚗 交通</option>
+                            <option value="食物">🍜 食物</option>
+                            <option value="購物">🛍️ 購物</option>
+                            <option value="景點">🗿 景點</option>
+                            <option value="酒店">🏨 酒店</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">精華標籤</label>
+                        <input type="text" id="edit-tags" placeholder="#必吃 #必拍" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">💡 拍照小技巧</label>
+                    <textarea id="edit-photo" rows="2" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">🚗 停車＆加油資訊</label>
+                    <textarea id="edit-parking" rows="2" class="w-full bg-warmGray rounded-xl px-3 py-2 border-0 focus:ring-2 focus:ring-fujiBlue outline-none resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closeModal()" class="w-1/3 bg-warmGray text-gray-500 font-bold py-2.5 rounded-xl text-sm">取消</button>
+                <button onclick="saveChanges()" class="w-2/3 bg-fujiBlue text-white font-bold py-2.5 rounded-xl text-sm shadow-md shadow-fujiBlue/20">儲存更新</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Logic & Data Storage -->
+    <script>
+        // 初始經典沖繩自駕數據
+        const defaultData = [
+            {
+                day: "DAY 1",
+                id: "day1",
+                title: "那霸市區與國際通探索",
+                clothing: "市區步行時間較長，建議穿著舒適透氣的棉麻上衣、寬褲或短褲，並搭配一雙好走的球鞋。",
+                weather: "市區體感溫度偏高（約 31°C），紫外線強烈。請隨身攜帶陽傘並定時補充水分，嚴防中暑。",
+                cards: [
+                    { time: "10:30", type: "交通", title: "那霸機場 OTS 租車公司", tags: ["#必拍"], photo: "拿到車後，記得與亮藍色的 OTS 招牌和沖繩限定風獅爺合照一張，宣告自駕之旅正式開始！", parking: "臨空豐崎營業所有超大免費停車場。取車時油箱為全滿狀態，還車時需至指定油站加滿並出示收據。" },
+                    { time: "12:35", type: "食物", title: "暖暮拉麵 那霸牧志店", tags: ["#必吃"], photo: "拉麵上桌時，用手機人像模式對焦在濃郁的高湯與叉燒上，特寫半熟蛋的流汁感最誘人。", parking: "店家無特約停車場，建議停在附近的「NPC24H 那霸牧志」或國際通周邊的收費停車場（約每小時 300-400 日圓）。" },
+                    { time: "14:30", type: "購物", title: "國際通大道散策", tags: ["#必買", "#必拍"], photo: "尋找路邊巨大的御菓子御殿紅芋塔模型，人站在旁邊合照非常具備沖繩地標感！", parking: "國際通為單行道且容易塞車，推薦停在美榮橋站附近的停車場再步行前往，比較省時。週日有步行者天國禁止車輛進入。" }
+                ]
+            },
+            {
+                day: "DAY 2",
+                id: "day2",
+                title: "中北部絕美海景與古宇利島",
+                clothing: "今天充滿海風與沙灘！建議穿著亮色系渡假風長裙或海灘褲，拍照極度出片。記得穿方便脫的涼鞋或拖鞋。",
+                weather: "海邊風大且完全無遮蔽物，體感紫外線爆表。請準備好太陽眼鏡、草帽，防曬乳一定要每 2 小時補擦一次喔！",
+                cards: [
+                    { time: "09:30", type: "景點", title: "萬座毛 (Manzamo)", tags: ["#必拍"], photo: "上午是順光，能拍出最透亮的「沖繩藍」海面！記得將經典的象鼻岩放在畫面左側三分之一處。", parking: "設有全新的複合式觀光建築，前方有免費的大型戶外停車場，車位非常多且附有電動車充電樁。" },
+                    { time: "13:30", type: "景點", title: "古宇利大橋 & 心形岩", tags: ["#必拍", "#必吃"], photo: "在準備上橋前的展望台靠邊停，可以拍到筆直大橋直通藍海的延伸感。心形岩則適合退潮時走下沙灘仰拍。", parking: "古宇利島橋頭兩側有免費草地停車場。心形岩周邊多為村民私有地，停車費約 100-300 日圓，採良心投幣箱式。" }
+                ]
+            },
+            {
+                day: "DAY 3",
+                id: "day3",
+                title: "經典水族館與美國村夜景",
+                clothing: "水族館內冷氣較強，美國村夜間海風微涼。建議帶件輕薄的防曬微薄外套，內搭美式休閒 T-shirt 與丹寧風服飾。",
+                weather: "白天室內行程舒適，傍晚海邊風速較大。注意查看日落時間（夏季約 19:15），提早卡位黃金夕陽時間。",
+                cards: [
+                    { time: "09:30", type: "景點", title: "美麗海水族館", tags: ["#必拍"], photo: "在「黑潮之海」大水槽前，人站在水槽前剪影留念，等鯨鯊游過去那一瞬間按下快門，科幻感十足！", parking: "請導航定位在「海洋博公園 P7 北口立體停車場」，這是離水族館正門最近的停車場，且完全免費。" },
+                    { time: "16:30", type: "購物", title: "北谷町美國村", tags: ["#必吃", "#必買", "#必拍"], photo: "傍晚時分先到日落步道（Sunset Walk）拍絕美夕陽，入夜後換拍色彩斑斕、宛如置身歐美的霓虹燈街景。", parking: "美國村擁有超級寬廣的免費公共停車場（如 Depot Island 旁）。中途若需加油，國道 58 號線上有許多 ENEOS 自助加油站。" }
+                ]
+            }
+        ];
+
+        // 讀取本地快取或初始化
+        let travelData = JSON.parse(localStorage.getItem('okinawa_itinerary_2026')) || defaultData;
+
+        // 分類對應的樣式與圖標
+        const typeStyles = {
+            "交通": { bg: "bg-amber-100", text: "text-amber-800", icon: "fa-car" },
+            "食物": { bg: "bg-red-100", text: "text-red-800", icon: "fa-utensils" },
+            "購物": { bg: "bg-purple-100", text: "text-purple-800", icon: "fa-bag-shopping" },
+            "景點": { bg: "bg-emerald-100", text: "text-emerald-800", icon: "fa-umbrella-beach" },
+            "酒店": { bg: "bg-blue-100", text: "text-blue-800", icon: "fa-hotel" }
+        };
+
+        // 渲染主畫面
+        function renderItinerary() {
+            const container = document.getElementById('itinerary-container');
+            container.innerHTML = '';
+
+            travelData.forEach((dayData, dayIdx) => {
+                let sectionHtml = `
+                    <section id="${dayData.id}" class="space-y-4 scroll-mt-24">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-fujiBlue text-white text-sm font-bold px-3 py-1 rounded-full shadow-sm">${dayData.day}</span>
+                            <h2 class="text-lg font-bold text-gray-700">${dayData.title}</h2>
+                        </div>
+                `;
+
+                dayData.cards.forEach((card, cardIdx) => {
+                    const style = typeStyles[card.type] || { bg: "bg-gray-100", text: "text-gray-800", icon: "fa-location-dot" };
+                    const tagBadges = card.tags.map(t => `<span class="text-xs font-bold text-fujiBlue">${t}</span>`).join(' ');
+
+                    sectionHtml += `
+                        <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 space-y-3 relative group">
+                            <!-- 編輯按鈕 -->
+                            <button onclick="openModal(${dayIdx}, ${cardIdx})" class="absolute top-4 right-4 bg-warmGray hover:bg-fujiBlue/10 text-gray-400 hover:text-fujiBlue w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                            </button>
+
+                            <div class="flex justify-between items-start pr-8">
+                                <div>
+                                    <span class="text-xs font-medium ${style.bg} ${style.text} px-2 py-0.5 rounded-md">
+                                        <i class="fa-solid ${style.icon} mr-1"></i>${card.type}
+                                    </span>
+                                    <h3 class="text-md font-bold text-gray-900 mt-1.5">${card.title}</h3>
+                                </div>
+                                <span class="text-xs text-gray-400 font-medium whitespace-nowrap mt-0.5">${card.time}</span>
+                            </div>
+
+                            <div class="flex flex-wrap gap-1.5">${tagBadges}</div>
+
+                            <div class="bg-warmGray rounded-2xl p-3.5 text-xs space-y-2 text-gray-600">
+                                <p><strong>💡 拍照小技巧：</strong> ${card.photo}</p>
+                                <p><strong>🚗 停車＆加油資訊：</strong> ${card.parking}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // 貼心提醒
+                sectionHtml += `
+                        <div class="bg-fujiBlue/10 rounded-3xl p-4 border border-fujiBlue/20 text-xs text-fujiBlue space-y-1">
+                            <p class="font-bold"><i class="fa-solid fa-shirt mr-1"></i> 👗 建議穿著：</p>
+                            <p class="text-gray-600 mb-2">${dayData.clothing}</p>
+                            <p class="font-bold"><i class="fa-solid fa-sun mr-1"></i> ☀️ 天氣提示：</p>
+                            <p class="text-gray-600">${dayData.weather}</p>
+                        </div>
+                    </section>
+                `;
+
+                container.innerHTML += sectionHtml;
+            });
+        }
+
+        // 開啟編輯彈窗並帶入原資料
+        function openModal(dayIdx, cardIdx) {
+            const card = travelData[dayIdx].cards[cardIdx];
+            document.getElementById('edit-day-idx').value = dayIdx;
+            document.getElementById('edit-card-idx').value = cardIdx;
+            
+            document.getElementById('edit-time').value = card.time;
+            document.getElementById('edit-title').value = card.title;
+            document.getElementById('edit-type').value = card.type;
+            document.getElementById('edit-tags').value = card.tags.join(' ');
+            document.getElementById('edit-photo').value = card.photo;
+            document.getElementById('edit-parking').value = card.parking;
+
+            const modal = document.getElementById('edit-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.firstElementChild.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        // 關閉彈窗
+        function closeModal() {
+            const modal = document.getElementById('edit-modal');
+            modal.firstElementChild.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.add('hidden');
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // 儲存修改內容
+        function saveChanges() {
+            const dayIdx = document.getElementById('edit-day-idx').value;
+            const cardIdx = document.getElementById('edit-card-idx').value;
+
+            const tagsInput = document.getElementById('edit-tags').value;
+            // 正規化標籤格式 (以空格或逗號分開，自動補上 #)
+            const processedTags = tagsInput.split(/[\s,]+/).filter(t => t).map(t => t.startsWith('#') ? t : '#' + t);
+
+            travelData[dayIdx].cards[cardIdx] = {
+                time: document.getElementById('edit-time').value,
+                type: document.getElementById('edit-type').value,
+                title: document.getElementById('edit-title').value,
+                tags: processedTags,
+                photo: document.getElementById('edit-photo').value,
+                parking: document.getElementById('edit-parking').value
+            };
+
+            // 存入 LocalStorage 保持永久記憶
+            localStorage.setItem('okinawa_itinerary_2026', JSON.stringify(travelData));
+            
+            renderItinerary();
+            closeModal();
+        }
+
+        // 底部導覽列高亮滾動偵測
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                if (pageYOffset >= section.offsetTop - 140) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(link => {
+                link.classList.remove('text-fujiBlue');
+                link.classList.add('text-gray-400');
+                if (link.getAttribute('data-day') === current) {
+                    link.classList.remove('text-gray-400');
+                    link.classList.add('text-fujiBlue');
+                }
+            });
+        });
+
+        // 首次初始化載入
+        window.onload = renderItinerary;
+    </script>
+</body>
+</html>
