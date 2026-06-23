@@ -1,0 +1,548 @@
+slides:普吉島四日遊行程助手:phuket_trip_planner.html
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>普吉島四日遊行程助手 - 韓風自訂版</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts 韓系字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #F8F9FA;
+            /* 韓式點點風格背景 */
+            background-image: radial-gradient(#3B7AAE 1.2px, transparent 1.2px);
+            background-size: 24px 24px;
+            background-opacity: 0.1;
+        }
+        .bg-fuji-blue { background-color: #3B7AAE; }
+        .text-fuji-blue { color: #3B7AAE; }
+        .border-fuji-blue { border-color: #3B7AAE; }
+        .focus-fuji-blue:focus { border-color: #3B7AAE; ring-color: #3B7AAE; }
+        .soft-shadow { box-shadow: 0 10px 30px rgba(59, 122, 174, 0.06); }
+        .modal-shadow { box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15); }
+        .active-tab { color: #3B7AAE; font-weight: 700; transform: translateY(-4px); transition: all 0.2s; }
+        html { scroll-behavior: smooth; }
+        
+        /* 隱藏捲動條但保留功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="pb-28 text-gray-700">
+
+    <!-- 頂部 Header -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-gray-100 px-4 py-4 soft-shadow">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div class="text-left">
+                <div class="inline-block bg-blue-50 text-fuji-blue text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-0.5">
+                    <i class="fa-solid fa-plane-departure mr-1"></i> 2026 SUMMER TRIP
+                </div>
+                <h1 class="text-lg font-bold tracking-wide text-gray-800">普吉島自主行程表</h1>
+            </div>
+            <!-- 重設按鈕 -->
+            <button onclick="resetItinerary()" class="text-xs text-gray-400 hover:text-red-500 border border-gray-200 hover:border-red-200 px-3 py-1.5 rounded-full transition flex items-center gap-1 bg-white">
+                <i class="fa-solid fa-rotate-left"></i> 重設行程
+            </button>
+        </div>
+    </header>
+
+    <!-- 主要行程容器 -->
+    <main id="itinerary-container" class="max-w-md mx-auto px-4 mt-6 space-y-10">
+        <!-- 行程卡片將由 JavaScript 動態生成渲染 -->
+    </main>
+
+    <!-- 底部韓式浮動導覽條 -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-6 py-3 rounded-full soft-shadow border border-gray-100 flex items-center space-x-8 z-40">
+        <a href="#day-1" class="flex flex-col items-center text-gray-400 hover:text-fuji-blue transition" onclick="setActive(this)">
+            <i class="fa-solid fa-1 text-lg"></i>
+            <span class="text-[9px] mt-0.5 font-bold">D1</span>
+        </a>
+        <a href="#day-2" class="flex flex-col items-center text-gray-400 hover:text-fuji-blue transition" onclick="setActive(this)">
+            <i class="fa-solid fa-2 text-lg"></i>
+            <span class="text-[9px] mt-0.5 font-bold">D2</span>
+        </a>
+        <a href="#day-3" class="flex flex-col items-center text-gray-400 hover:text-fuji-blue transition" onclick="setActive(this)">
+            <i class="fa-solid fa-3 text-lg"></i>
+            <span class="text-[9px] mt-0.5 font-bold">D3</span>
+        </a>
+        <a href="#day-4" class="flex flex-col items-center text-gray-400 hover:text-fuji-blue transition" onclick="setActive(this)">
+            <i class="fa-solid fa-4 text-lg"></i>
+            <span class="text-[9px] mt-0.5 font-bold">D4</span>
+        </a>
+    </nav>
+
+    <!-- ================= 編輯卡片 Modal (滑動式抽屜) ================= -->
+    <div id="edit-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+        <div id="modal-content" class="bg-white w-full max-w-md rounded-t-[2.5rem] p-6 space-y-4 max-h-[90vh] overflow-y-auto modal-shadow transform translate-y-full transition-transform duration-300">
+            <!-- 頂部把手與關閉 -->
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                <h2 class="text-base font-bold text-gray-800 flex items-center gap-1.5">
+                    <i class="fa-solid fa-pen-to-square text-fuji-blue"></i> 編輯行程細節
+                </h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- 編輯表單 -->
+            <form id="edit-form" class="space-y-4 text-sm" onsubmit="saveChanges(event)">
+                <input type="hidden" id="edit-day-idx">
+                <input type="hidden" id="edit-event-idx">
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">⏰ 時間 / 區間</label>
+                    <input type="text" id="form-time" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-fuji-blue focus:ring-1 focus:ring-fuji-blue" required>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 地點名稱</label>
+                        <input type="text" id="form-title" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-fuji-blue focus:ring-1 focus:ring-fuji-blue" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">🗂️ 景點分類</label>
+                        <select id="form-category" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-fuji-blue focus:ring-1 focus:ring-fuji-blue bg-white">
+                            <option value="交通">交通</option>
+                            <option value="食物">食物</option>
+                            <option value="購物">購物</option>
+                            <option value="景點">景點</option>
+                            <option value="酒店">酒店</option>
+                            <option value="活動">活動</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">✨ 彩色精華標籤 (以逗號隔開)</label>
+                    <input type="text" id="form-tags" placeholder="例如: #必吃, #必買, #網美打卡" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-fuji-blue focus:ring-1 focus:ring-fuji-blue">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">💡 拍照小技巧</label>
+                    <textarea id="form-tips" rows="2" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-fuji-blue focus:ring-1 focus:ring-fuji-blue resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">🚗 停車＆交通資訊</label>
+                    <textarea id="form-transport" rows="2" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-fuji-blue focus:ring-1 focus:ring-fuji-blue resize-none"></textarea>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-3 bg-fuji-blue text-white rounded-full font-bold shadow-md hover:bg-sky-700 transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-check"></i> 儲存更新
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= 編輯每日提醒 Modal ================= -->
+    <div id="reminder-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+        <div id="reminder-modal-content" class="bg-white w-full max-w-md rounded-t-[2.5rem] p-6 space-y-4 max-h-[85vh] overflow-y-auto modal-shadow transform translate-y-full transition-transform duration-300">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                <h2 class="text-base font-bold text-gray-800 flex items-center gap-1.5">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> 編輯穿著與天氣提示
+                </h2>
+                <button onclick="closeReminderModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="reminder-form" class="space-y-4 text-sm" onsubmit="saveReminderChanges(event)">
+                <input type="hidden" id="reminder-day-idx">
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">👗 建議穿著</label>
+                    <textarea id="form-outfit" rows="3" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-fuji-blue focus:ring-1 focus:ring-fuji-blue resize-none" required></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">☀️ 天氣提示</label>
+                    <textarea id="form-weather" rows="3" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-fuji-blue focus:ring-1 focus:ring-fuji-blue resize-none" required></textarea>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-bold shadow-md transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-check"></i> 儲存建議
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ==================== JavaScript 核心邏輯 ==================== -->
+    <script>
+        // 初始預設行程資料 (由導遊與設計師客製提煉)
+        const defaultItinerary = [
+            {
+                day: "DAY 1",
+                date: "7/18 (六)",
+                theme: "啟程與普吉探索之旅",
+                outfit: "考慮到長途飛行與下午的老街外拍，建議穿著舒適且拍照上鏡的輕便亮色系便服（如白色洋裝或棉麻襯衫），並隨身攜帶一件薄外套防室內冷氣。",
+                weather: "普吉島 7 月為雨季，多為午後局部陣雨。雖然主要為室內與包車行程，但在普吉老街散步時仍建議隨身攜帶折疊傘防雨與防曬！",
+                events: [
+                    {
+                        time: "08:20 抵達",
+                        title: "台北 / 新加坡 / 普吉島機場",
+                        category: "交通",
+                        tags: ["#搭機", "#必拍 窗外安達曼群島"],
+                        tips: "抵達普吉島降落前，記得打開窗戶，可以俯瞰美麗的安達曼海小島群，超適合拍出發限動！",
+                        transport: "抵達後跟著 Arrival 指標過海關。09:00 左右包車司機會在航廈指定出口舉牌接機。"
+                    },
+                    {
+                        time: "10:00 - 11:40",
+                        title: "Central Phuket 覓食與逛街",
+                        category: "購物",
+                        tags: ["#必吃 地下美食街", "#必買 泰國高質感香氛"],
+                        tips: "百貨中庭的巨型室內熱帶植物牆是經典打卡位，由下往上拍能顯現出驚人的空間綠意質感。",
+                        transport: "若百貨尚未開門（10點開門），可請司機先繞到旁邊步行僅3分鐘的 Big C 特易購進行小採買。"
+                    },
+                    {
+                        time: "12:00 - 13:30",
+                        title: "Padma Wellness Spa 精緻水療",
+                        category: "活動",
+                        tags: ["#必放鬆 泰式精油", "#必拍 極簡禪意庭園"],
+                        tips: "大廳奉上的特色迎賓蝶豆花茶與香草冰毛巾，搭配店內木質高雅香氛，是極具儀式感的開場畫面。",
+                        transport: "從 Central Phuket 出發車程僅需 6 分鐘，店家門口備有 4 格專屬貴賓停車位。"
+                    },
+                    {
+                        time: "13:45 - 15:45",
+                        title: "普吉老鎮 (文青咖啡街)",
+                        category: "景點",
+                        tags: ["#必拍 彩色百年中葡老建築", "#必吃 手工斑蘭葉甜點"],
+                        tips: "羅曼尼街 (Soi Rommanee) 的粉紅牆面與街頭壁畫是經典打卡點。建議使用人像模式，抓拍漫步老街的延伸感。",
+                        transport: "老街巷道窄，車輛不便久停，包車司機通常會放您在入口下車。若自駕需開往週邊收費停車場。"
+                    },
+                    {
+                        time: "16:45 抵達",
+                        title: "普吉萬豪渡假酒店 (Marriott)",
+                        category: "酒店",
+                        tags: ["#必住 豪華五星渡假村", "#必拍 海天一線絕美夕陽"],
+                        tips: "辦理完入住後建議立刻直奔海灘！傍晚 18:00 - 18:30 是普吉島絕美的魔幻紫粉色夕陽黃金拍照時間。",
+                        transport: "包車行程於抵達飯店後結束。萬豪提供房客專屬免費地下與平面停車場，保全措施非常完善。"
+                    }
+                ]
+            },
+            {
+                day: "DAY 2",
+                date: "7/19 (日)",
+                theme: "夢幻安達曼海出海一日遊",
+                outfit: "出發前請直接將泳衣/比基尼穿在身上，外面套上一件防曬防水的亮色沙灘罩衫或海灘褲。務必穿戴防滑涉水鞋、遮陽帽與太陽眼鏡。",
+                weather: "海上無遮蔽物、紫外線極強，請準備高規格「海洋友善防曬乳」並每兩小時補擦。建議自備防水袋，保護好您的手機。",
+                events: [
+                    {
+                        time: "全日出海行程",
+                        title: "安達曼奢華雙體船一日遊",
+                        category: "活動",
+                        tags: ["#全島免費接駁", "#中文導遊隨行", "#雞蛋島浮潛看魚"],
+                        tips: "在透明獨木舟上時，請旅伴由上往下拍攝，可以完美拍出船隻漂浮在玻璃水面上的超唯美大片！",
+                        transport: "此出海行程含全島免費接駁。請依確認信上的時間，提前 10 分鐘至萬豪酒店大廳等候接駁司機。"
+                    }
+                ]
+            },
+            {
+                day: "DAY 3",
+                date: "7/20 (一)",
+                theme: "萬豪酒店漫活耍廢一整天",
+                outfit: "極致慵懶風格！推薦穿著波希米亞風的純白印花超長洋裝，搭配一雙時尚平底拖鞋，隨時在飯店內各角落優雅擺拍。",
+                weather: "今天主要都在渡假村內，若遇到降雨也不用擔心，飯店內備有豐富的室內休閒室、多間泰/意餐廳與豪華 SPA 館可享受。",
+                events: [
+                    {
+                        time: "整日自由慢活",
+                        title: "萬豪五星渡假設施全攻略",
+                        category: "酒店",
+                        tags: ["#網美無邊際泳池", "#客房服務池畔調酒", "#極致渡假感"],
+                        tips: "萬豪特有的池畔躺椅與棕櫚樹倒影是完美背景。上午 8 點前陽光最柔和且池畔沒人，最容易拍出空靈感大片。",
+                        transport: "整天不需用車。若有租車自駕，車輛可安穩停放在飯店停車場內休養。"
+                    }
+                ]
+            },
+            {
+                day: "DAY 4",
+                date: "7/21 (二)",
+                theme: "滿載美好回憶歸國",
+                outfit: "考量長途飛行與機場空調冷氣，建議穿著舒適親膚的長褲、大學Tee或連帽外套，讓您在飛機上能舒適安穩地休息。",
+                weather: "回程打包行李時，記得將防曬噴霧、刀剪類以及超過100ml的泰國伴手禮香氛液體放入託運，以免海關安檢時被沒收！",
+                events: [
+                    {
+                        time: "依航班時間",
+                        title: "普吉島機場 / 桃園國際機場",
+                        category: "交通",
+                        tags: ["#平安歸國", "#免稅店最後採購"],
+                        tips: "出境大廳內有非常壯觀的泰式傳統巨神雕刻地標，別忘了在登機前與它合影，為泰國之旅畫下完美句點。",
+                        transport: "請提前至少 3 小時抵達機場還車與辦理登機。自駕還車前，請務必至機場旁的 PTT 加油站將油箱「加滿還車」。"
+                    }
+                ]
+            }
+        ];
+
+        // 讀取本地快取，若無則初始化預設資料
+        let itinerary = JSON.parse(localStorage.getItem('phuket_itinerary')) || defaultItinerary;
+
+        // 分類對應的標籤顏色與圖標
+        const categoryConfig = {
+            "交通": { bg: "bg-blue-50", text: "text-blue-600", icon: "fa-car-side" },
+            "食物": { bg: "bg-red-50", text: "text-red-500", icon: "fa-utensils" },
+            "購物": { bg: "bg-orange-50", text: "text-orange-600", icon: "fa-bag-shopping" },
+            "景點": { bg: "bg-purple-50", text: "text-purple-600", icon: "fa-camera-retro" },
+            "酒店": { bg: "bg-indigo-50", text: "text-indigo-600", icon: "fa-hotel" },
+            "活動": { bg: "bg-teal-50", text: "text-teal-600", icon: "fa-person-swimming" }
+        };
+
+        // 渲染景點卡片與提醒
+        function renderItinerary() {
+            const container = document.getElementById('itinerary-container');
+            container.innerHTML = '';
+
+            itinerary.forEach((dayData, dayIdx) => {
+                // 創建每一天的 Section
+                const daySection = document.createElement('section');
+                daySection.id = `day-${dayIdx + 1}`;
+                daySection.className = 'space-y-4';
+
+                // 日期頂欄
+                let dayHeaderHtml = `
+                    <div class="flex items-center space-x-2 pt-2">
+                        <span class="bg-fuji-blue text-white text-xs font-bold w-16 h-7 rounded-full flex items-center justify-center shadow-sm">${dayData.day}</span>
+                        <span class="text-xs text-gray-400 font-medium">${dayData.date} • ${dayData.theme}</span>
+                    </div>
+                `;
+                daySection.innerHTML += dayHeaderHtml;
+
+                // 渲染當日的所有景點卡片
+                dayData.events.forEach((event, eventIdx) => {
+                    const config = categoryConfig[event.category] || { bg: "bg-gray-50", text: "text-gray-600", icon: "fa-location-dot" };
+                    
+                    // 組合標籤 HTML
+                    let tagsHtml = '';
+                    if (event.tags && event.tags.length > 0) {
+                        event.tags.forEach(tag => {
+                            if (tag.trim()) {
+                                tagsHtml += `<span class="text-[10px] bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-bold">${tag.trim()}</span>`;
+                            }
+                        });
+                    }
+
+                    let cardHtml = `
+                        <div class="bg-white rounded-[2rem] p-5 soft-shadow border border-gray-100 space-y-3 relative group">
+                            <!-- 編輯按鈕 -->
+                            <button onclick="openEditModal(${dayIdx}, ${eventIdx})" class="absolute top-4 right-4 bg-gray-50 hover:bg-blue-50 text-gray-400 hover:text-fuji-blue w-8 h-8 rounded-full flex items-center justify-center transition border border-gray-100">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                            </button>
+
+                            <div class="flex justify-between items-start pr-8">
+                                <div>
+                                    <span class="${config.bg} ${config.text} text-[10px] px-2.5 py-0.5 rounded-md font-bold flex items-center gap-1 w-fit">
+                                        <i class="fa-solid ${config.icon}"></i> ${event.category}
+                                    </span>
+                                    <h3 class="text-base font-bold mt-1.5 text-gray-800 tracking-wide">${event.title}</h3>
+                                </div>
+                            </div>
+                            
+                            <div class="text-xs font-bold text-fuji-blue flex items-center">
+                                <i class="fa-regular fa-clock mr-1"></i> ${event.time}
+                            </div>
+
+                            ${tagsHtml ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHtml}</div>` : ''}
+
+                            <!-- 💡 秘笈與資訊 -->
+                            <div class="bg-[#F8F9FA] rounded-2xl p-4.5 text-[11px] space-y-2.5 text-gray-600 border border-gray-100/50">
+                                <div class="leading-relaxed">
+                                    <span class="font-bold text-gray-700 block mb-0.5">💡 拍照小技巧：</span>
+                                    <p class="text-gray-500">${event.tips || '無特別拍照說明，隨心捕捉最美一刻！'}</p>
+                                </div>
+                                <div class="leading-relaxed border-t border-gray-200/50 pt-2">
+                                    <span class="font-bold text-gray-700 block mb-0.5">🚗 交通與停車資訊：</span>
+                                    <p class="text-gray-500">${event.transport || '無特別交通指示，建議預先定位 Google 地圖。'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    daySection.innerHTML += cardHtml;
+                });
+
+                // 渲染當日貼心天氣穿著提示卡
+                let reminderHtml = `
+                    <div class="bg-amber-50/50 rounded-[2rem] p-5 border border-amber-100/70 space-y-3 relative">
+                        <!-- 提醒編輯按鈕 -->
+                        <button onclick="openReminderModal(${dayIdx})" class="absolute top-4 right-4 bg-white/80 hover:bg-amber-100 text-amber-600/70 w-8 h-8 rounded-full flex items-center justify-center transition border border-amber-200/50">
+                            <i class="fa-solid fa-pen text-xs"></i>
+                        </button>
+
+                        <div class="text-xs font-bold text-amber-800 flex items-center">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> ${dayData.day} 導遊貼心備忘
+                        </div>
+                        <div class="text-[11px] text-amber-900/80 space-y-2.5 leading-relaxed">
+                            <div>
+                                <strong class="text-amber-950 font-bold block">👗 穿著推薦：</strong>
+                                <p class="mt-0.5 text-amber-900/70">${dayData.outfit}</p>
+                            </div>
+                            <div class="border-t border-amber-200/40 pt-2">
+                                <strong class="text-amber-950 font-bold block">☀️ 天氣提示：</strong>
+                                <p class="mt-0.5 text-amber-900/70">${dayData.weather}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                daySection.innerHTML += reminderHtml;
+
+                container.appendChild(daySection);
+            });
+        }
+
+        // ================= 編輯景點 Modal 視窗控制 =================
+        function openEditModal(dayIdx, eventIdx) {
+            const event = itinerary[dayIdx].events[eventIdx];
+            
+            document.getElementById('edit-day-idx').value = dayIdx;
+            document.getElementById('edit-event-idx').value = eventIdx;
+            
+            document.getElementById('form-time').value = event.time;
+            document.getElementById('form-title').value = event.title;
+            document.getElementById('form-category').value = event.category;
+            document.getElementById('form-tags').value = event.tags ? event.tags.join(', ') : '';
+            document.getElementById('form-tips').value = event.tips;
+            document.getElementById('form-transport').value = event.transport;
+
+            const modal = document.getElementById('edit-modal');
+            const modalContent = document.getElementById('modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                modalContent.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('edit-modal');
+            const modalContent = document.getElementById('modal-content');
+            
+            modalContent.classList.add('translate-y-full');
+            modal.classList.remove('opacity-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function saveChanges(e) {
+            e.preventDefault();
+            const dayIdx = parseInt(document.getElementById('edit-day-idx').value);
+            const eventIdx = parseInt(document.getElementById('edit-event-idx').value);
+            
+            // 獲取表單輸入值
+            const tagsInput = document.getElementById('form-tags').value;
+            // 處理以逗號隔開的標籤
+            const processedTags = tagsInput.split(',').map(tag => {
+                let trimmed = tag.trim();
+                if (trimmed && !trimmed.startsWith('#')) {
+                    return '#' + trimmed;
+                }
+                return trimmed;
+            }).filter(tag => tag !== '');
+
+            // 更新 Itinerary 資料
+            itinerary[dayIdx].events[eventIdx] = {
+                time: document.getElementById('form-time').value,
+                title: document.getElementById('form-title').value,
+                category: document.getElementById('form-category').value,
+                tags: processedTags,
+                tips: document.getElementById('form-tips').value,
+                transport: document.getElementById('form-transport').value
+            };
+
+            // 儲存至 LocalStorage 並重繪
+            localStorage.setItem('phuket_itinerary', JSON.stringify(itinerary));
+            renderItinerary();
+            closeModal();
+        }
+
+        // ================= 編輯提醒 Modal 視窗控制 =================
+        function openReminderModal(dayIdx) {
+            const dayData = itinerary[dayIdx];
+            
+            document.getElementById('reminder-day-idx').value = dayIdx;
+            document.getElementById('form-outfit').value = dayData.outfit;
+            document.getElementById('form-weather').value = dayData.weather;
+
+            const modal = document.getElementById('reminder-modal');
+            const modalContent = document.getElementById('reminder-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                modalContent.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        function closeReminderModal() {
+            const modal = document.getElementById('reminder-modal');
+            const modalContent = document.getElementById('reminder-modal-content');
+            
+            modalContent.classList.add('translate-y-full');
+            modal.classList.remove('opacity-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function saveReminderChanges(e) {
+            e.preventDefault();
+            const dayIdx = parseInt(document.getElementById('reminder-day-idx').value);
+            
+            itinerary[dayIdx].outfit = document.getElementById('form-outfit').value;
+            itinerary[dayIdx].weather = document.getElementById('form-weather').value;
+
+            localStorage.setItem('phuket_itinerary', JSON.stringify(itinerary));
+            renderItinerary();
+            closeReminderModal();
+        }
+
+        // ================= 重設與還原行程 =================
+        function resetItinerary() {
+            if (confirm("確定要將所有編輯過的行程與穿著提醒回復為出廠預設值嗎？(此動作無法還原)")) {
+                itinerary = JSON.parse(JSON.stringify(defaultItinerary));
+                localStorage.setItem('phuket_itinerary', JSON.stringify(itinerary));
+                renderItinerary();
+                alert("已成功重置行程！");
+            }
+        }
+
+        // ================= 導覽條 Tab 切換高亮 =================
+        function setActive(element) {
+            const links = document.querySelectorAll('nav a');
+            links.forEach(link => link.classList.remove('active-tab'));
+            element.classList.add('active-tab');
+        }
+
+        // 初始化載入
+        document.addEventListener("DOMContentLoaded", function() {
+            renderItinerary();
+            // 預設高亮第一個導航按鈕
+            document.querySelector('nav a').classList.add('active-tab');
+            
+            // 點擊背景遮罩關閉 Modal
+            document.getElementById('edit-modal').addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+            document.getElementById('reminder-modal').addEventListener('click', function(e) {
+                if (e.target === this) closeReminderModal();
+            });
+        });
+    </script>
+</body>
+</html>
+```eof
+
+您的普吉島四日遊 Web App 編輯升級版已經製作完成！這次不僅保留了您喜愛的韓系高顏值視覺，更增添了無痛的行程編輯與儲存功能。您可以隨意調整時間、文字、加入個人的私房 Tips，或是修改天氣與穿搭建議。快複製儲存起來點開試用看看吧！
