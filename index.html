@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=400;500;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -83,7 +83,7 @@
             
             <div class="flex justify-between items-center pb-2 border-b border-gray-100">
                 <h2 class="text-base font-bold text-gray-800 flex items-center gap-1.5">
-                    <i class="fa-solid fa-wallet text-fuji-blue"></i> 普吉島隨身帳本 (雲端分帳)
+                    <i class="fa-solid fa-wallet text-fuji-blue"></i> 普吉島隨身帳本 (雲端4人分帳)
                 </h2>
                 <button onclick="closeLedgerModal()" class="text-gray-400 hover:text-gray-600 p-1">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -106,19 +106,19 @@
                     <div>
                         <label class="block font-bold text-gray-500 mb-1">👤 誰負責墊錢？</label>
                         <select id="expense-payer" class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none">
-                            <option value="Leslie">Leslie</option>
-                            <option value="Chloe">Chloe</option>
-                            <option value="Angel">Angel</option>
-                            <option value="Sen">Sen</option>
+                            <option value="成員A">成員A</option>
+                            <option value="成員B">成員B</option>
+                            <option value="成員C">成員C</option>
+                            <option value="成員D">成員D</option>
                         </select>
                     </div>
                     <div>
                         <label class="block font-bold text-gray-500 mb-1">👥 參與平分的人</label>
                         <div class="flex gap-2 mt-1.5">
-                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="Leslie" checked>Leslie</label>
-                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="Chloe" checked>Chloe</label>
-                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="Angel" checked>Angel</label>
-                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="Sen" checked>Sen</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="成員A" checked>A</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="成員B" checked>B</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="成員C" checked>C</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" class="share-member" value="成員D" checked>D</label>
                         </div>
                     </div>
                 </div>
@@ -247,7 +247,7 @@
 
         let itinerary = [];
         let expenses = [];
-        const members = ["Leslie", "Chloe", "Angel", "Sen"];
+        const members = ["成員A", "成員B", "成員C", "成員D"];
         const categoryConfig = {
             "交通": { bg: "bg-blue-50", text: "text-blue-600", icon: "fa-car-side" },
             "食物": { bg: "bg-red-50", text: "text-red-500", icon: "fa-utensils" },
@@ -265,6 +265,7 @@
                     itinerary = doc.data().days;
                     renderItinerary();
                 } else {
+                    // 若雲端完全無資料，自動將預設資料推上去初始化
                     db.collection("itinerary").doc("master").set({ days: defaultItinerary });
                 }
             });
@@ -327,9 +328,9 @@
 
         // ==================== 💸 雲端記帳分帳系統邏輯 ====================
         function calculateDebts() {
-            let balances = { "Leslie": 0, "Chloe": 0, "Angel": 0, "Sen": 0 };
-            let totalPaid = { "Leslie": 0, "Chloe": 0, "Angel": 0, "Sen": 0 };
-            let totalOwed = { "Leslie": 0, "Chloe": 0, "Angel": 0, "Sen": 0 };
+            let balances = { "成員A": 0, "成員B": 0, "成員C": 0, "成員D": 0 };
+            let totalPaid = { "成員A": 0, "成員B": 0, "成員C": 0, "成員D": 0 };
+            let totalOwed = { "成員A": 0, "成員B": 0, "成員C": 0, "成員D": 0 };
 
             expenses.forEach(exp => {
                 let amt = parseFloat(exp.amount);
@@ -415,7 +416,7 @@
         function copyToLine() {
             if (expenses.length === 0) { alert("目前沒有帳目資料可以複製喔！"); return; }
             const { balances } = calculateDebts();
-            let msg = `『 🌴 普吉島夏日渡假 - 分帳結算清單 』\n\n📝 【消費明細摘要】\n`;
+            let msg = `『 🌴 普吉島夏日渡假 - 4人分帳結算清單 』\n\n📝 【消費明細摘要】\n`;
             expenses.forEach(exp => { msg += `• ${exp.item}: $${exp.amount} (由 ${exp.payer} 墊付)\n`; });
             msg += `\n📊 【最終應退/應補金額】\n`;
             
@@ -478,7 +479,6 @@
             db.collection("itinerary").doc("master").set({ days: itinerary }).then(() => closeReminderModal());
         }
 
-        // 重置雲端行程
         function resetItineraryToCloud() {
             if (confirm("確定要將『雲端』所有編輯過的行程回復為原本的出廠預設值嗎？這會同步改變所有人的手機畫面喔！")) {
                 db.collection("itinerary").doc("master").set({ days: defaultItinerary }).then(() => alert("雲端行程重置成功！"));
@@ -546,6 +546,7 @@
 
         // 監聽與初始化
         document.addEventListener("DOMContentLoaded", function() {
+            // 只有在填入正式金鑰後才會正常啟動監聽
             if(firebaseConfig.apiKey !== "YOUR_API_KEY") {
                 initFirebaseListeners();
             }
