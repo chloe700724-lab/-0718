@@ -451,4 +451,109 @@
             const dayIdx = parseInt(document.getElementById('edit-day-idx').value);
             const eventIdx = parseInt(document.getElementById('edit-event-idx').value);
             const tagsInput = document.getElementById('form-tags').value;
-            const processedTags = tagsInput.split(',').map
+            const processedTags = tagsInput.split(',').map(tag => {
+                let trimmed = tag.trim();
+                if (trimmed && !trimmed.startsWith('#')) return '#' + trimmed;
+                return trimmed;
+            }).filter(t => t !== '');
+
+            itinerary[dayIdx].events[eventIdx] = {
+                time: document.getElementById('form-time').value,
+                title: document.getElementById('form-title').value,
+                category: document.getElementById('form-category').value,
+                tags: processedTags,
+                tips: document.getElementById('form-tips').value,
+                transport: document.getElementById('form-transport').value
+            };
+
+            db.collection("itinerary").doc("master").set({ days: itinerary }).then(() => closeModal());
+        }
+
+        function saveReminderToCloud(e) {
+            e.preventDefault();
+            const dayIdx = parseInt(document.getElementById('reminder-day-idx').value);
+            itinerary[dayIdx].outfit = document.getElementById('form-outfit').value;
+            itinerary[dayIdx].weather = document.getElementById('form-weather').value;
+
+            db.collection("itinerary").doc("master").set({ days: itinerary }).then(() => closeReminderModal());
+        }
+
+        // 重置雲端行程
+        function resetItineraryToCloud() {
+            if (confirm("確定要將『雲端』所有編輯過的行程回復為原本的出廠預設值嗎？這會同步改變所有人的手機畫面喔！")) {
+                db.collection("itinerary").doc("master").set({ days: defaultItinerary }).then(() => alert("雲端行程重置成功！"));
+            }
+        }
+
+        // ==================== Modal 視窗開關動畫控制 ====================
+        function openLedgerModal() {
+            renderLedger();
+            const modal = document.getElementById('ledger-modal');
+            const content = document.getElementById('ledger-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('opacity-100'); content.classList.remove('translate-y-full'); }, 10);
+        }
+        function closeLedgerModal() {
+            const modal = document.getElementById('ledger-modal');
+            const content = document.getElementById('ledger-content');
+            content.classList.add('translate-y-full'); modal.classList.remove('opacity-100');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+        function openEditModal(dayIdx, eventIdx) {
+            const event = itinerary[dayIdx].events[eventIdx];
+            document.getElementById('edit-day-idx').value = dayIdx;
+            document.getElementById('edit-event-idx').value = eventIdx;
+            document.getElementById('form-time').value = event.time;
+            document.getElementById('form-title').value = event.title;
+            document.getElementById('form-category').value = event.category;
+            document.getElementById('form-tags').value = event.tags ? event.tags.join(', ') : '';
+            document.getElementById('form-tips').value = event.tips || '';
+            document.getElementById('form-transport').value = event.transport || '';
+
+            const modal = document.getElementById('edit-modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('opacity-100'); content.classList.remove('translate-y-full'); }, 10);
+        }
+        function closeModal() {
+            const modal = document.getElementById('edit-modal');
+            const content = document.getElementById('modal-content');
+            content.classList.add('translate-y-full'); modal.classList.remove('opacity-100');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+        function openReminderModal(dayIdx) {
+            const dayData = itinerary[dayIdx];
+            document.getElementById('reminder-day-idx').value = dayIdx;
+            document.getElementById('form-outfit').value = dayData.outfit;
+            document.getElementById('form-weather').value = dayData.weather;
+
+            const modal = document.getElementById('reminder-modal');
+            const content = document.getElementById('reminder-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('opacity-100'); content.classList.remove('translate-y-full'); }, 10);
+        }
+        function closeReminderModal() {
+            const modal = document.getElementById('reminder-modal');
+            const content = document.getElementById('reminder-modal-content');
+            content.classList.add('translate-y-full'); modal.classList.remove('opacity-100');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+        function setActive(element) {
+            const links = document.querySelectorAll('nav a');
+            links.forEach(link => link.classList.remove('active-tab'));
+            element.classList.add('active-tab');
+        }
+
+        // 監聽與初始化
+        document.addEventListener("DOMContentLoaded", function() {
+            if(firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                initFirebaseListeners();
+            }
+            document.querySelector('nav a').classList.add('active-tab');
+            document.getElementById('edit-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+            document.getElementById('reminder-modal').addEventListener('click', function(e) { if (e.target === this) closeReminderModal(); });
+            document.getElementById('ledger-modal').addEventListener('click', function(e) { if (e.target === this) closeLedgerModal(); });
+        });
+    </script>
+</body>
+</html>
